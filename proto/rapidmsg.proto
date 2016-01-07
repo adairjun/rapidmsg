@@ -1,0 +1,65 @@
+package rapidmsg;
+/**
+ * 所有消息前面均固定添加未编码的4字节无符号整数(网络字节序)表示编码后的消息长度
+ * 用于判断接收消息到的消息是否完整用于解析
+ **/
+
+// 所有协议的总名字空间
+message RMessage {
+    // 协议头
+    required Head head = 1;
+
+    // 协议体
+    required Body body = 2;
+};
+
+message Head {
+    required string session_no = 1;                // 会话的编号
+    required uint32 message_type = 2;              // 消息类型 
+    optional string client_ip = 3;                 // 客户端ip
+    optional string target_ip = 4;                 // 目标IP
+    optional uint32 target_port = 5;               // 目标端口
+};
+
+// 消息体所有的内容都是可选的，需要配合消息头中的message_type进行检查，
+// 必须有一个消息体
+message Body {
+    optional SimpleResponse simple_response = 1;
+    extensions 100 to max;
+};
+
+enum MessageType {
+    SIMPLE_RESPONSE = 10;
+};
+
+// 公共的一些数据结构
+message IpPortPair {
+    required uint32 ip = 1;
+    required uint32 port = 2;
+};
+
+// 通用的返回码
+message ResponseCode {
+    required int32 retcode = 1;                 // 返回值
+    optional string error_message = 2;          // 当返回值不为0时，包含错误信息
+};
+
+// IP地址信息
+message IpAddress {
+    required string ip = 1;                     // IP地址
+    required uint32 type = 2;                   // IP类型，可能是内网、BGP、电信、联通、移动、东方有线、电信通等等
+};
+
+// 简单的返回包
+message SimpleResponse {
+    required ResponseCode rc = 1;
+};
+
+// 内部协议头，用来标识连接信息
+message InternalHead {
+    required int32 fd = 10;
+    required uint32 peer_addr = 20;
+    required int32 peer_port = 30;
+    required uint32 sock_addr = 40;
+    required int32 sock_port = 50;
+};

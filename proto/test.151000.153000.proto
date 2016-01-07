@@ -1,0 +1,37 @@
+package rapidmsg.test;
+
+import "rapidmsg.proto";
+
+// =====================================================================
+enum MessageType {
+		BEGINNING_ID = 151000;
+// -------------------------------------------------------------------------------------
+		// 消息类型 
+		JUST_TEST_REQUEST = 151001;				// 一个测试 
+		JUST_TEST_RESPONSE = 151002;
+// -------------------------------------------------------------------------------------
+		ENDING_ID = 153000;
+};
+
+// =====================================================================
+extend rapidmsg.Body {
+		optional JustTestRequest just_test_request = 151001;
+		optional JustTestResponse just_test_response = 151002;
+};
+
+// ======================================================================
+
+message JustTestRequest {
+	required uint32 test_id = 10;
+	required string test_name = 20;
+}
+
+message JustTestResponse {
+	required ResponseCode rc = 10;
+	optional uint32 test_id = 20;
+}
+
+// =======================================================================
+enum ErrorCode {
+	EC_INVALID_PARAM = 151001;							// 参数不合法
+}
