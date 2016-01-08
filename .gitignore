@@ -1,0 +1,7 @@
+*.a
+*.o
+*.so
+*.so.*
+lib/*.so.*
+.cproject
+.project

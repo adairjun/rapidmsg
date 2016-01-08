@@ -9,6 +9,7 @@ PROTOFILES := $(wildcard ./proto/*.proto)
 HEADERS := $(addsuffix .pb.h, $(notdir $(basename $(PROTOFILES))))
 CPPFILES := $(addsuffix .pb.cc, $(notdir $(basename $(PROTOFILES))))
 OBJECTS := $(addsuffix .pb.o, $(notdir $(basename $(PROTOFILES))))
+LIBS := -L/usr/local/lib -lprotobuf
 TARGET := libmessage.so
 
 ifeq ("$(origin V)", "command line")
@@ -29,7 +30,7 @@ all:$(TARGET)
 	@echo "--------------------------make successful-----------------------"
 
 $(TARGET):$(OBJECTS)
-	$(QUIET_LINK)$(CXX) -shared -fPIC -o ./lib/$(TARGET) $^
+	$(QUIET_LINK)$(CXX) -shared -fPIC -o ./lib/$(TARGET) $^ $(LIBS)
 
 %.pb.o:%.pb.cc
 	$(QUIET_CXX)$(CXX) $(CPPFLAGS) -o $@ -c $<
