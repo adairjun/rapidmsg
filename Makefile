@@ -6,11 +6,17 @@ CXX := g++
 CPPFLAGS := -std=c++0x -O2 -g -fPIC
 
 PROTOFILES := $(wildcard ./proto/*.proto)
-HEADERS := $(addsuffix .pb.h, $(notdir $(basename $(PROTOFILES))))
-CPPFILES := $(addsuffix .pb.cc, $(notdir $(basename $(PROTOFILES))))
-OBJECTS := $(addsuffix .pb.o, $(notdir $(basename $(PROTOFILES))))
+PROTOHEADERS := $(addsuffix .pb.h, $(notdir $(basename $(PROTOFILES))))
+PROTOCPPFILES := $(addsuffix .pb.cc, $(notdir $(basename $(PROTOFILES))))
+PROTOOBJECTS := $(addsuffix .pb.o, $(notdir $(basename $(PROTOFILES))))
+
+LIBCFILES := $(wildcard ./util/*.c)
+LIBCPPFILES := $(wildcard ./util/*.cc ./util/*.cpp)
+LIBOBJECTS := $(addsuffix .o, $(basename $(LIBCFILES)) $(basename $(LIBCPPFILES)))
+
+INCLUDE := -I/usr/local/include -I./include
 LIBS := -L/usr/local/lib -lprotobuf
-TARGET := libmessage.so
+TARGET := librapidmsg.so
 
 ifeq ("$(origin V)", "command line")
    BUILD_VERBOSE = $(V)
@@ -26,10 +32,10 @@ ifeq ($(BUILD_VERBOSE),0)
 endif
 
 all:$(TARGET)
-	cp $(HEADERS) include/
+	cp $(PROTOHEADERS) include/rapidmsg/
 	@echo "--------------------------make successful-----------------------"
 
-$(TARGET):$(OBJECTS)
+$(TARGET):$(PROTOOBJECTS) $(LIBOBJECTS)
 	$(QUIET_LINK)$(CXX) -shared -fPIC -o ./lib/$(TARGET) $^ $(LIBS)
 
 %.pb.o:%.pb.cc
@@ -38,10 +44,19 @@ $(TARGET):$(OBJECTS)
 %.pb.cc:./proto/%.proto
 	protoc --proto_path=./proto --cpp_out . $<
 
+./util/%.o:./util/%.c
+	$(QUIET_CC)$(CC) $(INCLUDE) $(CFLAGS) -c -o $@ $<
+
+./util/%.o:./util/%.cc
+	$(QUIET_CXX)$(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $@ $<
+
+./util/%.o:./util/%.cpp 
+	$(QUIET_CXX)$(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $@ $<
+
 .PHONY:clean show
 # ./include下的头文件和./lib下的库文件不要删除
 clean:
-	-rm -f $(OBJECTS) $(CPPFILES) $(HEADERS) 
+	-rm -f $(PROTOOBJECTS) $(PROTOCPPFILES) $(PROTOHEADERS)  $(LIBOBJECTS)
 	@echo "----------------------------make clean-----------------------"
 
 #这是用来调试Makefile用的
@@ -49,12 +64,12 @@ show:
 	@echo "PROTOFILES"
 	@echo $(PROTOFILES)
 	@echo "-------------------------------------------"
-	@echo "HEADERS"
-	@echo $(HEADERS)
+	@echo "PROTOHEADERS"
+	@echo $(PROTOHEADERS)
 	@echo "-------------------------------------------"
-	@echo "CPPFILES"
-	@echo $(CPPFILES)
+	@echo "PROTOCPPFILES"
+	@echo $(PROTOCPPFILES)
 	@echo "-------------------------------------------"
-	@echo "OBJECTS"
-	@echo $(OBJECTS)
+	@echo "PROTOOBJECTS"
+	@echo $(PROTOOBJECTS)
 	@echo "-------------------------------------------"
