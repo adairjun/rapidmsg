@@ -36,7 +36,7 @@ all:$(TARGET)
 	@echo "--------------------------make successful-----------------------"
 
 $(TARGET):$(PROTOOBJECTS) $(LIBOBJECTS)
-	$(QUIET_LINK)$(CXX) -shared -fPIC -o ./lib/$(TARGET) $^ $(LIBS)
+	$(QUIET_LINK)$(CXX) -shared -fPIC -o $(TARGET) $^ $(LIBS)
 
 %.pb.o:%.pb.cc
 	$(QUIET_CXX)$(CXX) $(CPPFLAGS) -o $@ -c $<
@@ -56,7 +56,7 @@ $(TARGET):$(PROTOOBJECTS) $(LIBOBJECTS)
 .PHONY:clean show
 # ./include下的头文件和./lib下的库文件不要删除
 clean:
-	-rm -f $(PROTOOBJECTS) $(PROTOCPPFILES) $(PROTOHEADERS)  $(LIBOBJECTS)
+	-rm -f $(TARGET) $(PROTOOBJECTS) $(PROTOCPPFILES) $(PROTOHEADERS)  $(LIBOBJECTS)
 	@echo "----------------------------make clean-----------------------"
 
 #这是用来调试Makefile用的
@@ -73,3 +73,7 @@ show:
 	@echo "PROTOOBJECTS"
 	@echo $(PROTOOBJECTS)
 	@echo "-------------------------------------------"
+
+install:
+	cp -r ./include/rapidmsg /usr/local/include
+	cp $(TARGET) /usr/local/lib 
