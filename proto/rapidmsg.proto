@@ -19,8 +19,9 @@ message Head {
     required string session_no = 1;                // 会话的编号
     required uint32 message_type = 2;              // 消息类型，比如10就代表了SIMPLE_RESPONSE这个消息
     optional string client_ip = 3;                 // 客户端ip
-    optional string target_ip = 4;                 // 目标IP
-    optional uint32 target_port = 5;               // 目标端口
+    optional uint32 client_port = 4;               // 客户端接收服务的端口号
+    optional string target_ip = 5;                 // 目标IP
+    optional uint32 target_port = 6;               // 目标端口
 };
 
 // 消息体所有的内容都是可选的，需要配合消息头中的message_type进行检查，
