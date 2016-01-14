@@ -14,7 +14,7 @@ LIBCFILES := $(wildcard ./util/*.c)
 LIBCPPFILES := $(wildcard ./util/*.cc ./util/*.cpp)
 LIBOBJECTS := $(addsuffix .o, $(basename $(LIBCFILES)) $(basename $(LIBCPPFILES)))
 
-INCLUDE := -I/usr/local/include -I./include
+INCLUDE := -I/usr/local/include -I./include -I./include/rapidmsg
 LIBS := -L/usr/local/lib -lprotobuf
 TARGET := librapidmsg.so
 
@@ -32,7 +32,6 @@ ifeq ($(BUILD_VERBOSE),0)
 endif
 
 all:$(TARGET)
-	cp $(PROTOHEADERS) include/rapidmsg/
 	@echo "--------------------------make successful-----------------------"
 
 $(TARGET):$(PROTOOBJECTS) $(LIBOBJECTS)
@@ -43,6 +42,7 @@ $(TARGET):$(PROTOOBJECTS) $(LIBOBJECTS)
 
 %.pb.cc:./proto/%.proto
 	protoc --proto_path=./proto --cpp_out . $<
+	cp $(addsuffix .pb.h, $(notdir $(basename $<))) include/rapidmsg/
 
 ./util/%.o:./util/%.c
 	$(QUIET_CC)$(CC) $(INCLUDE) $(CFLAGS) -c -o $@ $<
@@ -53,10 +53,14 @@ $(TARGET):$(PROTOOBJECTS) $(LIBOBJECTS)
 ./util/%.o:./util/%.cpp 
 	$(QUIET_CXX)$(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $@ $<
 
-.PHONY:clean show
-# ./include下的头文件和./lib下的库文件不要删除
+.PHONY:clean wipe show
+# clean是不清除./include下的头文件和当前目录下的库文件, wipe则是清除掉
 clean:
-	-rm -f $(TARGET) $(PROTOOBJECTS) $(PROTOCPPFILES) $(PROTOHEADERS)  $(LIBOBJECTS)
+	-rm -f $(PROTOOBJECTS) $(PROTOCPPFILES) $(PROTOHEADERS) $(LIBOBJECTS)
+	@echo "----------------------------make clean-----------------------"
+
+wipe:
+	-rm -f $(PROTOOBJECTS) $(PROTOCPPFILES) $(PROTOHEADERS) $(LIBOBJECTS) $(TARGET) $(addprefix ./include/rapidmsg/, $(PROTOHEADERS))
 	@echo "----------------------------make clean-----------------------"
 
 #这是用来调试Makefile用的
