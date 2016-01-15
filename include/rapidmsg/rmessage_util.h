@@ -29,5 +29,16 @@ string DebugString(const ::rapidmsg::RMessage& pReq);
 /*
  * 使用protobuf的GetReflection动态设置字段的值
  */
+/*
+ * 从已经序列化的消息当中取出一个在proto文件当中定义的字段
+ * 比如
+ * message test{
+ *   require string ip = 1;
+ *   require uint32 port = 2;
+ * }
+ * 对于test这个message，这个函数能将序列化之后的string当中获取字段ip或者port的值
+ */
+
+string GetStringFieldByMessage(const string& messageType, const string& message, const string& fieldName);
 
 #endif /* _RMESSAGE_UTIL_H_ */

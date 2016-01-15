@@ -53,6 +53,43 @@ void MakeResponse(const ::rapidmsg::RMessage& pReq, int messageType_, ::rapidmsg
   if (pReq.head().has_target_port()) { pRes.mutable_head()->set_client_port(pReq.head().target_port()); }
 }
 
+/*
+ * 这仅仅只是简单地调用DebugString，任何一个::protobuf::Message的对象都可以，这里把它封装进来的原因是为了限制参数只能是::rapidmsg::RMessage
+ */
 string DebugString(const ::rapidmsg::RMessage& pReq) {
   return pReq.DebugString();
+}
+
+string GetStringFieldByMessage(const string& messageType, const string& message, const string& fieldName) {
+
+  const ::google::protobuf::Descriptor* descriptor = ::google::protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(messageType);
+  const ::google::protobuf::Message* prototype = ::google::protobuf::MessageFactory::generated_factory()->GetPrototype(descriptor);
+  boost::shared_ptr<google::protobuf::Message> new_obj(prototype->New());
+  new_obj->ParseFromString(message);
+
+  const ::google::protobuf::Reflection* reflection = new_obj->GetReflection();
+  const ::google::protobuf::FieldDescriptor* rmes_field = descriptor->FindFieldByName(fieldName);
+  return reflection->GetString(*new_obj, rmes_field);
+
+  /*if (typeid(T) == typeid(int32_t)) {
+	return reflection->GetInt32(*new_obj, rmes_field);
+  } else if (typeid(T) == typeid(int64_t)) {
+	return reflection->GetInt64(*new_obj, rmes_field);
+  } else if (typeid(T) == typeid(uint32_t)) {
+  	return reflection->GetUInt64(*new_obj, rmes_field);
+  } else if (typeid(T) == typeid(uint64_t)) {
+  	return reflection->GetUInt64(*new_obj, rmes_field);
+  } else if (typeid(T) == typeid(float)) {
+  	return reflection->GetFloat(*new_obj, rmes_field);
+  } else if (typeid(T) == typeid(double)) {
+  	return reflection->GetDouble(*new_obj, rmes_field);
+  } else if (typeid(T) == typeid(bool)) {
+  	return reflection->GetBool(*new_obj, rmes_field);
+  } else if (typeid(T) == typeid(string)) {
+  	return reflection->GetString(*new_obj, rmes_field);
+  } else {
+	// 如果什么类型都没匹配上，那么默认构造一个T，然后返回它
+	T t;
+	return t;
+  }*/
 }
